@@ -1,12 +1,12 @@
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+import torch.nn as nn
+from torchtext.data import Field, Dataset, Example
 
-class Poet_Dataset(Dataset):
-    def __init__(self, filepath):
-        with open(filepath, 'r', encoding = 'utf-8-sig') as f:
-            lines = f.readlines()
-            self.poems = [0] * len(lines)
-            for i,line in enumerate(lines):
-                aft = line.rstrip().replace("，", '#').replace("。", '#')
-                self.poems[i] = aft
+def tokenize(s:str):
+    tok = s.rstrip().replace("，", "#").replace("。", "#")
+    return list(tok)
+
+sentence_field = Field(sequential = True, tokenize = tokenize, lower = False,
+                       batch_first = True, include_lengths = True)
+label_field = Field(sequential = False, use_vocab = False)
