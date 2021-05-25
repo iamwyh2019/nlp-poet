@@ -5,6 +5,7 @@ import numpy as np
 from dataloader import poet_dataset
 from model import RNNModel
 import time
+import matplotlib.pyplot as plt
 
 data_path = 'data/wuyanjueju.txt'
 train_batch_size = 50
@@ -31,6 +32,9 @@ model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
 lr = 1e-3
+
+train_loss_history = np.zeros(epochs)
+val_loss_history = np.zeros(epochs)
 
 def train(model):
     model.train()
@@ -94,18 +98,34 @@ def evaluate(model, data):
 
 best_val_loss = float('inf')
 best_model = None
+
+def plot_curve(train_loss, val_loss, fname):
+    x = range(len(train_loss))
+    plt.figure(facecolor = 'white', edgecolor = 'black')
+    plt.plot(x, train_loss, color = 'r', linewidth = 2, label = 'Training')
+    plt.plot(x, val_loss, color = 'b', linewidth = 2, label = 'Validation')
+    plt.savefig(fname)
+
         
 for epoch in range(epochs):
     epoch_start_time = time.time()
     train_loss = train(model)
     val_loss = evaluate(model, dataset.val_data)
 
-    print('-' * 50)
+    train_loss_history[epoch] = train_loss
+    val_loss_history[epoch] = val_loss
+
+    np.save('train_loss_history.npy', train_loss_history)
+    np.save('val_loss_history.npy', val_loss_history)
+
+    print('-' * 65)
     print('| epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '.format(
         epoch, (time.time() - epoch_start_time), val_loss))
-    print('-' * 50)
+    print('-' * 65)
 
     if val_loss < best_val_loss:
         best_val_loss = val_loss
         best_model = model
         torch.save(best_model, 'best_model.pt')
+
+plot_curve(train_loss_history, val_loss_history, 'LSTM_history.png')
