@@ -7,7 +7,7 @@ from model import RNNModel
 import time
 import matplotlib.pyplot as plt
 
-data_path = 'data/wuyanjueju.txt'
+data_path = 'data/qiyanjueju.txt'
 train_batch_size = 50
 eval_batch_size = 40
 epochs = 100
@@ -99,14 +99,18 @@ def evaluate(model, data):
 best_val_loss = float('inf')
 best_model = None
 
-def plot_curve(train_loss, val_loss, fname):
+def plot_curve(train_loss, val_loss, model_name):
     x = range(len(train_loss))
     plt.figure(facecolor = 'white', edgecolor = 'black')
     plt.plot(x, train_loss, color = 'r', linewidth = 2, label = 'Training')
     plt.plot(x, val_loss, color = 'b', linewidth = 2, label = 'Validation')
-    plt.savefig(fname)
+    plt.title(model_name + ' history')
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+    plt.legend(loc = 'upper right')
+    plt.savefig(model_name + "_history.png")
 
-        
+# Main
 for epoch in range(epochs):
     epoch_start_time = time.time()
     train_loss = train(model)
@@ -128,4 +132,4 @@ for epoch in range(epochs):
         best_model = model
         torch.save(best_model, 'best_model.pt')
 
-plot_curve(train_loss_history, val_loss_history, 'LSTM_history.png')
+plot_curve(train_loss_history, val_loss_history, 'LSTM')
