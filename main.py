@@ -30,19 +30,18 @@ model = RNNModel(
 model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
-lr = 0.01
+lr = 1e-3
 
 def train(model):
     model.train()
     total_loss = 0.0
+    avg_loss = 0.0
     start_time = time.time()
     log_step = 20
+    n_batch = dataset.train_data[0].shape[0]
 
     optimizer = torch.optim.Adam(model.parameters(), lr = lr)
-    
     hidden = None
-
-    n_batch = dataset.train_data[0].shape[0]
 
     for i in range(n_batch):
         input, target = dataset.get_batch(dataset.train_data, i)
@@ -70,9 +69,43 @@ def train(model):
 
             start_time = time.time()
             total_loss = 0.0
+    
+    return avg_loss
         
+def evaluate(model, data):
+    model.eval()
+    total_loss = 0.0
+    total_batch = 0
+    n_batch = data[0].shape[0]
 
+    hidden = None
 
+    with torch.no_grad():
+        for i in range(n_batch):
+            input, target = dataset.get_batch(data, i)
+            output, hidden = model(input, hidden)
+
+            loss = criterion(output, target)
+
+            total_loss += loss.item() * input.shape[0]
+            total_batch += input.shape[0]
+    
+    return total_loss / total_batch
+
+best_val_loss = float('inf')
+best_model = None
         
 for epoch in range(epochs):
-    train(model)
+    epoch_start_time = time.time()
+    train_loss = train(model)
+    val_loss = evaluate(model, dataset.val_data)
+
+    print('-' * 50)
+    print('| epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '.format(
+        epoch, (time.time() - epoch_start_time), val_loss))
+    print('-' * 50)
+
+    if val_loss < best_val_loss:
+        best_val_loss = val_loss
+        best_model = model
+        torch.save(best_model, 'best_model.pt')
