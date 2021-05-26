@@ -13,7 +13,7 @@ model = torch.load(model_path, map_location = device)
 hidden = None
 n_sents, n_words = model.info()
 
-pre_word = "碧玉妆成一树高，万条垂下绿丝绦。不知细叶谁裁出，二月春风似剪刀。"
+pre_word = "泉眼无声惜细流，树阴照水爱晴柔。小荷才露尖尖角，早有蜻蜓立上头。"
 
 def pre_process(pre_word):
     global hidden
@@ -53,3 +53,4 @@ while True:
             poet.append(''.join(sent))
     
     print('\n'.join(poet))
+    print()
