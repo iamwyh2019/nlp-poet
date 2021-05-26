@@ -12,7 +12,7 @@ eval_batch_size = 40
 epochs = 100
 input_size = 300
 hidden_size = 300
-n_layers = 5
+n_layers = 6
 clip = 0.1
 
 dataset = poet_dataset(data_path, train_batch_size, eval_batch_size)
