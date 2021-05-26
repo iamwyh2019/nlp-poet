@@ -67,6 +67,8 @@ class poet_dataset():
         return ts
     
     def head2vec(self, s:str):
+        if s == '。' or s == '，':
+            s = '#'
         numeric = self.vocab[s]
         ts = torch.tensor(numeric, dtype = torch.long).view(1,1)
         return ts

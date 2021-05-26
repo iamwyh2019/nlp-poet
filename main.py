@@ -127,10 +127,13 @@ for epoch in range(epochs):
         epoch, (time.time() - epoch_start_time), val_loss))
     print('-' * 65)
 
+    '''
     if val_loss < best_val_loss:
         best_val_loss = val_loss
         best_model = model
         torch.save(best_model, 'best_model.pt')
+    '''
+    torch.save(model, 'temp_model.pt')
     
     dataset.shuffle()
 
