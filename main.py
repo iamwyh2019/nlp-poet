@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 import numpy as np
 from dataloader import poet_dataset
-from model import RNNModel
+from model import PoetModel
 import time
 import matplotlib.pyplot as plt
 
@@ -21,12 +21,13 @@ tokens, n_sents, n_words = dataset.info()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model = RNNModel(
+model = PoetModel(
     voc_size = tokens,
     input_size = input_size,
     hidden_size = hidden_size,
     n_layers = n_layers,
-    dropout = None
+    n_sents = n_sents,
+    n_words = n_words
 )
 model = model.to(device)
 
@@ -104,7 +105,7 @@ def plot_curve(train_loss, val_loss, model_name):
     plt.figure(facecolor = 'white', edgecolor = 'black')
     plt.plot(x, train_loss, color = 'r', linewidth = 2, label = 'Training')
     plt.plot(x, val_loss, color = 'b', linewidth = 2, label = 'Validation')
-    plt.title(model_name + ' history')
+    plt.title(model_name + ' performance')
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.legend(loc = 'upper right')
