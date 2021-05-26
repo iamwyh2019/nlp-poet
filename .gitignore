@@ -5,3 +5,4 @@ train_loss_history.npy
 val_loss_history.npy
 LSTM_history.png
 *.png
+*.pt

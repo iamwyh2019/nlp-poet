@@ -13,7 +13,7 @@ model = torch.load(model_path, map_location = device)
 hidden = None
 n_sents, n_words = model.info()
 
-pre_word = "白日依山尽，黄河入海流。"
+pre_word = "碧玉妆成一树高，万条垂下绿丝绦。不知细叶谁裁出，二月春风似剪刀。"
 pre_word = dataset.external_tokenizer(pre_word).to(device)
 
 model.eval()

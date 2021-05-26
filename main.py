@@ -131,5 +131,9 @@ for epoch in range(epochs):
         best_val_loss = val_loss
         best_model = model
         torch.save(best_model, 'best_model.pt')
+    
+    dataset.shuffle()
+
+torch.save(model, 'final_model.pt')
 
 plot_curve(train_loss_history, val_loss_history, 'LSTM')

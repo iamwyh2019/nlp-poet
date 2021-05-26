@@ -23,18 +23,20 @@ class poet_dataset():
         self.vocab = Vocab(counter)
         self.len = len(all_sents)
         self.ntoken = len(self.vocab.itos)
+        self.train_batch_size = train_batch_size
+        self.eval_batch_size = eval_batch_size
 
         random.shuffle(all_sents)
         train_sz, val_sz, test_sz = int(0.6*self.len), int(0.2*self.len), int(0.2*self.len)
-        train_data = self.data_process(all_sents[:train_sz])
-        val_data = self.data_process(all_sents[train_sz: train_sz + val_sz])
-        test_data = self.data_process(all_sents[train_sz + val_sz:])
+        self.ori_train_data = self.data_process(all_sents[:train_sz])
+        self.ori_val_data = self.data_process(all_sents[train_sz: train_sz + val_sz])
+        self.ori_test_data = self.data_process(all_sents[train_sz + val_sz:])
 
         #print(train_data[0].shape)
 
-        self.train_data = self.batchify(train_data, train_batch_size)
-        self.val_data = self.batchify(val_data, eval_batch_size)
-        self.test_data = self.batchify(test_data, eval_batch_size)
+        self.train_data = self.batchify(self.ori_train_data, train_batch_size)
+        self.val_data = self.batchify(self.ori_val_data, eval_batch_size)
+        self.test_data = self.batchify(self.ori_test_data, eval_batch_size)
 
         #print(self.train_data[0].shape)
 
@@ -48,6 +50,10 @@ class poet_dataset():
             full.extend(lsent)
             full.append('#')
         return full
+    
+    def shuffle(self):
+        random.shuffle(self.ori_train_data)
+        self.train_data = self.batchify(self.ori_train_data, self.train_batch_size)
     
     def external_tokenizer(self, s:str):
         tok = s.strip().replace("，", "#").replace("。", "#").split("#")[:-1]
@@ -67,21 +73,20 @@ class poet_dataset():
     
     def data_process(self, s:list):
         slen = len(s)
-        x, y = [0] * slen, [0] * slen
+        ts = [0] * slen
 
         for i,sent in enumerate(s):
             numeric = [self.vocab[word] for word in sent]
-            x[i] = torch.tensor(numeric[:-1], dtype = torch.long).unsqueeze(0)
-            y[i] = torch.tensor(numeric[1: ], dtype = torch.long).unsqueeze(0)
-        
-        xs = torch.cat(x, dim = 0)
-        ys = torch.cat(y, dim = 0)
+            x = torch.tensor(numeric[:-1], dtype = torch.long).unsqueeze(0)
+            y = torch.tensor(numeric[1: ], dtype = torch.long).unsqueeze(0)
+            ts[i] = (x,y)
 
-        return xs, ys
+        return ts
     
     def batchify(self, data, batch_size):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        x, y = data
+        x = torch.cat([s[0] for s in data], dim = 0)
+        y = torch.cat([s[1] for s in data], dim = 0)
         n_batch = x.shape[0] // batch_size
         x = x.narrow(0, 0, n_batch * batch_size)
         y = y.narrow(0, 0, n_batch * batch_size)
