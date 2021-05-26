@@ -35,18 +35,21 @@ while True:
     cur_hidden = hidden
     with torch.no_grad():
         for i, head in enumerate(heads):
+            sent = []
             ipt = dataset.head2vec(head).to(device)
-            poet.append(head)
+            sent.append(head)
 
             for _ in range(n_words - 1):
                 opt, cur_hidden = model(ipt, cur_hidden)
                 word_idx = torch.argmax(opt.squeeze()).item()
                 word = dataset.num2word(word_idx)
-                poet.append(word)
+                sent.append(word)
                 ipt = dataset.head2vec(word).to(device)
             
             opt, cur_hidden = model(ipt, cur_hidden)
-            poet.append('，' if i % 2 == 0 else '。')
+            sent.append('，' if i % 2 == 0 else '。')
             opt, cur_hidden = model(sep, cur_hidden)
+
+            poet.append(''.join(sent))
     
-    print(''.join(poet))
+    print('\n'.join(poet))
