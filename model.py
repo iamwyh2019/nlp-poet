@@ -68,3 +68,6 @@ class PoetModel(nn.Module):
             return hidden.detach()
         else:
             return [self.detach_hidden(v) for v in hidden]
+    
+    def info(self):
+        return self.n_sents, self.n_words

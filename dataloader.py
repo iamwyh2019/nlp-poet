@@ -7,7 +7,7 @@ from torchtext.vocab import Vocab
 import random
 
 class poet_dataset():
-    def __init__(self, data_path, train_batch_size, eval_batch_size):
+    def __init__(self, data_path, train_batch_size = 50, eval_batch_size = 40):
         counter = Counter()
         all_sents = []
 
@@ -38,7 +38,6 @@ class poet_dataset():
 
         #print(self.train_data[0].shape)
 
-        
     def tokenizer(self, s:str):
         tok = s.strip().replace("，", "#").replace("。", "#").split("#")[:-1]
         self.n_sents = len(tok)
@@ -48,8 +47,23 @@ class poet_dataset():
             lsent = list(sent)
             full.extend(lsent)
             full.append('#')
-        full.append('*')
         return full
+    
+    def external_tokenizer(self, s:str):
+        tok = s.strip().replace("，", "#").replace("。", "#").split("#")[:-1]
+        full = []
+        for sent in tok:
+            lsent = list(sent)
+            full.extend(lsent)
+            full.append('#')
+        numeric = [self.vocab[word] for word in full]
+        ts = torch.tensor(numeric, dtype = torch.long).unsqueeze(0)
+        return ts
+    
+    def head2vec(self, s:str):
+        numeric = self.vocab[s]
+        ts = torch.tensor(numeric, dtype = torch.long).view(1,1)
+        return ts
     
     def data_process(self, s:list):
         slen = len(s)
@@ -80,7 +94,10 @@ class poet_dataset():
         target = data[1][index].reshape(-1)
         return input, target
     
-    def vec2sent(self, s:list):
+    def num2word(self, idx:int):
+        return self.vocab.itos[idx]
+    
+    def list2sent(self, s:list):
         sent = [self.vocab.itos[num] for num in s]
         return ''.join(sent)
     

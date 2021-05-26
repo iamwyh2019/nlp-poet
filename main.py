@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
 import numpy as np
 from dataloader import poet_dataset
 from model import PoetModel
