@@ -5,15 +5,14 @@ from dataloader import poet_dataset
 from model import PoetModel
 import time
 import matplotlib.pyplot as plt
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 data_path = 'data/qiyanjueju.txt'
-train_batch_size = 64
+train_batch_size = 50
 eval_batch_size = 40
-epochs = 150
+epochs = 100
 input_size = 300
-hidden_size = 512
-n_layers = 3
+hidden_size = 300
+n_layers = 6
 clip = 0.1
 
 dataset = poet_dataset(data_path, train_batch_size, eval_batch_size)
@@ -34,13 +33,8 @@ model = model.to(device)
 criterion = nn.CrossEntropyLoss()
 lr = 1e-3
 
-optimizer = torch.optim.Adam(model.parameters(), lr = lr)
-scheduler = ReduceLROnPlateau(optimizer, mode = 'min', threshold = 0.005, factor = 0.5, patience = 2, verbose = True)
-
 train_loss_history = np.zeros(epochs)
 val_loss_history = np.zeros(epochs)
-train_ppl_history = np.zeros(epochs)
-val_ppl_history = np.zeros(epochs)
 
 def train(model):
     model.train()
@@ -50,6 +44,7 @@ def train(model):
     log_step = 20
     n_batch = dataset.train_data[0].shape[0]
 
+    optimizer = torch.optim.Adam(model.parameters(), lr = lr)
     hidden = None
 
     for i in range(n_batch):
@@ -104,16 +99,16 @@ def evaluate(model, data):
 best_val_loss = float('inf')
 best_model = None
 
-def plot_curve(train_loss, val_loss, model_name, ylab = 'loss'):
+def plot_curve(train_loss, val_loss, model_name):
     x = range(len(train_loss))
     plt.figure(facecolor = 'white', edgecolor = 'black')
     plt.plot(x, train_loss, color = 'r', linewidth = 2, label = 'Training')
     plt.plot(x, val_loss, color = 'b', linewidth = 2, label = 'Validation')
-    plt.title(model_name + ' ' + ylab)
+    plt.title(model_name + ' performance')
     plt.xlabel('epoch')
-    plt.ylabel(ylab)
-    plt.legend(loc = 'lower right')
-    plt.savefig(model_name + "_" + ylab + ".png")
+    plt.ylabel('loss')
+    plt.legend(loc = 'upper right')
+    plt.savefig(model_name + "_history.png")
 
 # Main
 for epoch in range(epochs):
@@ -123,29 +118,25 @@ for epoch in range(epochs):
 
     train_loss_history[epoch] = train_loss
     val_loss_history[epoch] = val_loss
-    train_ppl_history[epoch] = np.exp(train_loss)
-    val_loss_history[epoch] = np.exp(val_loss)
 
     np.save('train_loss_history.npy', train_loss_history)
     np.save('val_loss_history.npy', val_loss_history)
-    np.save('train_ppl_history.npy', train_loss_history)
-    np.save('val_ppl_history.npy', val_loss_history)
 
     print('-' * 65)
     print('| epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '.format(
         epoch, (time.time() - epoch_start_time), val_loss))
     print('-' * 65)
 
+    '''
     if val_loss < best_val_loss:
         best_val_loss = val_loss
         best_model = model
-        torch.save(best_model, 'new_best_model.pt')
-    
-    scheduler.step(val_loss)
+        torch.save(best_model, 'best_model.pt')
+    '''
+    torch.save(model, 'temp_model.pt')
     
     dataset.shuffle()
 
-torch.save(model, 'new_final_model.pt')
+torch.save(model, 'final_model.pt')
 
-plot_curve(train_loss_history, val_loss_history, 'LSTM_NEW', 'loss')
-plot_curve(train_ppl_history, val_ppl_history, 'LSTM_NEW', 'perplexity')
+plot_curve(train_loss_history, val_loss_history, 'LSTM')

@@ -14,19 +14,14 @@ class PoetModel(nn.Module):
 
         self.drop = nn.Dropout(0.5)
 
-        self.lstm1 = nn.LSTM(
+        self.lstm = nn.LSTM(
                 input_size = input_size,
                 hidden_size = hidden_size,
                 num_layers = n_layers,
                 batch_first = True
             )
         
-        self.lstm2 = nn.LSTM(
-            input_size = hidden_size,
-            hidden_size = hidden_size,
-            num_layers = n_layers,
-            batch_first = True
-        )
+        self.layer_norm = nn.LayerNorm(hidden_size)
         
         self.decoder = nn.Linear(hidden_size, voc_size)
 
@@ -40,19 +35,20 @@ class PoetModel(nn.Module):
         if hidden is None:
             ht = torch.zeros((self.n_layers, batch_sz, self.hidden_size)).to(input.device)
             ct = torch.zeros((self.n_layers, batch_sz, self.hidden_size)).to(input.device)
-            hidden = (ht,ct)
+        else:
+            ht, ct = hidden
         
         # embedding: batch_sz * seq_len * voc_sz
         embedding = self.encoder(input)
 
+        embedding = self.drop(embedding)
+
         # output: batch_sz * seq_len * hidden_size        
-        middle, hidden = self.lstm1(embedding, hidden)
-
-        middle = self.drop(middle)
-
-        output, hidden = self.lstm2(middle, hidden)
+        output, hidden = self.lstm(embedding, (ht,ct))
 
         output = self.drop(output)
+
+        output = self.layer_norm(output)
 
         # decode: (batch_sz * seq_len) * voc_sz
         decode = self.decoder(output.reshape(batch_sz * seq_len, -1))
