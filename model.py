@@ -19,7 +19,7 @@ class PoetModel(nn.Module):
                 hidden_size = hidden_size,
                 num_layers = n_layers,
                 batch_first = True,
-                dropout = 0.5
+                #dropout = 0.5
             )
         
         self.layer_norm = nn.LayerNorm(hidden_size)
@@ -67,3 +67,4 @@ class PoetModel(nn.Module):
     
     def info(self):
         return self.n_sents, self.n_words
+
