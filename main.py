@@ -7,7 +7,7 @@ import time
 import matplotlib.pyplot as plt
 
 data_path = 'data/qiyanjueju.txt'
-train_batch_size = 64
+train_batch_size = 50
 eval_batch_size = 40
 epochs = 150
 input_size = 300
@@ -25,7 +25,6 @@ model = PoetModel(
     input_size = input_size,
     hidden_size = hidden_size,
     n_layers = n_layers,
-    dropout = 0.5,
     n_sents = n_sents,
     n_words = n_words,
     tf_idf = dataset.tf_idf.to(device)
