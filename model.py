@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class PoetModel(nn.Module):
-    def __init__(self, voc_size, input_size, hidden_size, n_layers, n_sents, n_words):
+    def __init__(self, voc_size, input_size, hidden_size, n_layers, dropout, n_sents, n_words):
         super(PoetModel, self).__init__()
         self.encoder = nn.Embedding(num_embeddings = voc_size, embedding_dim = input_size)
 
@@ -12,13 +12,12 @@ class PoetModel(nn.Module):
         self.n_layers = n_layers
         self.hidden_size = hidden_size
 
-        self.drop = nn.Dropout(0.5)
-
         self.lstm = nn.LSTM(
                 input_size = input_size,
                 hidden_size = hidden_size,
                 num_layers = n_layers,
-                batch_first = True
+                batch_first = True,
+                dropout = dropout
             )
         
         self.layer_norm = nn.LayerNorm(hidden_size)
@@ -33,19 +32,15 @@ class PoetModel(nn.Module):
         # input: batch_sz * seq_len
         batch_sz, seq_len  = input.size()
         if hidden is None:
-            ht = torch.zeros((self.n_layers, batch_sz, self.hidden_size)).to(self.device)
-            ct = torch.zeros((self.n_layers, batch_sz, self.hidden_size)).to(self.device)
+            ht = torch.zeros((self.n_layers, batch_sz, self.hidden_size)).to(input.device)
+            ct = torch.zeros((self.n_layers, batch_sz, self.hidden_size)).to(input.device)
             hidden = (ht, ct)
         
         # embedding: batch_sz * seq_len * voc_sz
         embedding = self.encoder(input)
 
-        embedding = self.drop(embedding)
-
         # output: batch_sz * seq_len * hidden_size        
         output, hidden = self.lstm(embedding, hidden)
-
-        output = self.drop(output)
 
         output = self.layer_norm(output)
 

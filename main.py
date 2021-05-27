@@ -25,6 +25,7 @@ model = PoetModel(
     input_size = input_size,
     hidden_size = hidden_size,
     n_layers = n_layers,
+    dropout = 0.5,
     n_sents = n_sents,
     n_words = n_words
 )
@@ -32,6 +33,7 @@ model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
 lr = 1e-3
+optimizer = torch.optim.Adam(model.parameters(), lr = lr, weight_decay = 0.1)
 
 train_loss_history = np.zeros(epochs)
 val_loss_history = np.zeros(epochs)
@@ -46,7 +48,6 @@ def train(model):
     log_step = 20
     n_batch = dataset.train_data[0].shape[0]
 
-    optimizer = torch.optim.Adam(model.parameters(), lr = lr)
     hidden = None
 
     for i in range(n_batch):
