@@ -7,7 +7,7 @@ data_path = 'data/qiyanjueju.txt'
 dataset = poet_dataset(data_path)
 sep = dataset.head2vec('#').to(device)
 
-model_path = 'final_model.pt'
+model_path = 'new_final_model.pt'
 model = torch.load(model_path, map_location = device)
 hidden = None
 n_sents, n_words = model.info()

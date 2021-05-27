@@ -7,11 +7,11 @@ import time
 import matplotlib.pyplot as plt
 
 data_path = 'data/qiyanjueju.txt'
-train_batch_size = 50
+train_batch_size = 64
 eval_batch_size = 40
-epochs = 100
+epochs = 150
 input_size = 300
-hidden_size = 300
+hidden_size = 512
 n_layers = 6
 clip = 0.1
 
@@ -35,6 +35,8 @@ lr = 1e-3
 
 train_loss_history = np.zeros(epochs)
 val_loss_history = np.zeros(epochs)
+train_ppl_history = np.zeros(epochs)
+val_ppl_history = np.zeros(epochs)
 
 def train(model):
     model.train()
@@ -99,16 +101,16 @@ def evaluate(model, data):
 best_val_loss = float('inf')
 best_model = None
 
-def plot_curve(train_loss, val_loss, model_name):
+def plot_curve(train_loss, val_loss, model_name, ylab):
     x = range(len(train_loss))
     plt.figure(facecolor = 'white', edgecolor = 'black')
     plt.plot(x, train_loss, color = 'r', linewidth = 2, label = 'Training')
     plt.plot(x, val_loss, color = 'b', linewidth = 2, label = 'Validation')
-    plt.title(model_name + ' performance')
+    plt.title(model_name + ' ' + ylab)
     plt.xlabel('epoch')
-    plt.ylabel('loss')
-    plt.legend(loc = 'upper right')
-    plt.savefig(model_name + "_history.png")
+    plt.ylabel(ylab)
+    plt.legend(loc = 'lower right')
+    plt.savefig(model_name + '_' + ylab + '.png')
 
 # Main
 for epoch in range(epochs):
@@ -118,25 +120,27 @@ for epoch in range(epochs):
 
     train_loss_history[epoch] = train_loss
     val_loss_history[epoch] = val_loss
+    train_ppl_history[epoch] = np.exp(train_loss)
+    val_ppl_history[epoch] = np.exp(val_loss)
 
     np.save('train_loss_history.npy', train_loss_history)
     np.save('val_loss_history.npy', val_loss_history)
+    np.save('train_ppl_history.npy', train_ppl_history)
+    np.save('val_ppl_history.npy', val_ppl_history)
 
     print('-' * 65)
     print('| epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '.format(
         epoch, (time.time() - epoch_start_time), val_loss))
     print('-' * 65)
 
-    '''
     if val_loss < best_val_loss:
         best_val_loss = val_loss
         best_model = model
-        torch.save(best_model, 'best_model.pt')
-    '''
-    torch.save(model, 'temp_model.pt')
+        torch.save(best_model, 'new_best_model.pt')
     
     dataset.shuffle()
 
-torch.save(model, 'final_model.pt')
+torch.save(model, 'new_final_model.pt')
 
-plot_curve(train_loss_history, val_loss_history, 'LSTM')
+plot_curve(train_loss_history, val_loss_history, 'LSTM_NEW', 'loss')
+plot_curve(train_ppl_history, val_ppl_history, 'LSTM_NEW', 'perplexity')
