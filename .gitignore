@@ -7,3 +7,4 @@ LSTM_history.png
 *.png
 *.pt
 *.npy
+.idea/*
