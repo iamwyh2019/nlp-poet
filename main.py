@@ -27,7 +27,8 @@ model = PoetModel(
     n_layers = n_layers,
     dropout = 0.5,
     n_sents = n_sents,
-    n_words = n_words
+    n_words = n_words,
+    tf_idf = dataset.tf_idf.to(device)
 )
 model = model.to(device)
 

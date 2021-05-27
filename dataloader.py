@@ -5,19 +5,25 @@ from torch.utils import data
 from collections import Counter
 from torchtext.vocab import Vocab
 import random
+import math
 
 class poet_dataset():
     def __init__(self, data_path, train_batch_size = 50, eval_batch_size = 40):
         counter = Counter()
+        df = Counter()
         all_sents = []
+
+        self.n_poet = 0
 
         with open(data_path, 'r', encoding = 'utf-8-sig') as f:
             while True:
                 line = f.readline()
                 if not line:
                     break
+                self.n_poet += 1
                 full = self.tokenizer(line)
                 counter.update(full)
+                df.update(set(full))
                 all_sents.append(full)
         
         self.vocab = Vocab(counter)
@@ -32,13 +38,17 @@ class poet_dataset():
         self.ori_val_data = self.data_process(all_sents[train_sz: train_sz + val_sz])
         self.ori_test_data = self.data_process(all_sents[train_sz + val_sz:])
 
-        #print(train_data[0].shape)
-
         self.train_data = self.batchify(self.ori_train_data, train_batch_size)
         self.val_data = self.batchify(self.ori_val_data, eval_batch_size)
         self.test_data = self.batchify(self.ori_test_data, eval_batch_size)
 
-        #print(self.train_data[0].shape)
+        twords = sum(counter.values())
+        self.tf_idf = [0] * self.ntoken
+        for i,word in enumerate(self.vocab.itos):
+            tf = counter[word] / twords
+            idf = math.log(self.n_poet / (df[word] + 1))
+            self.tf_idf[i] = tf * idf
+        self.tf_idf = torch.tensor(self.tf_idf)
 
     def tokenizer(self, s:str):
         tok = s.strip().replace("，", "#").replace("。", "#").split("#")[:-1]
