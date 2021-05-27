@@ -46,7 +46,7 @@ class poet_dataset():
         self.tf_idf = [0] * self.ntoken
         for i,word in enumerate(self.vocab.itos):
             tf = counter[word] / twords
-            idf = math.log(self.n_poet / (df[word] + 1))
+            idf = math.log((self.n_poet + 1) / (df[word] + 1))
             self.tf_idf[i] = tf * idf
         self.tf_idf = torch.tensor(self.tf_idf)
 

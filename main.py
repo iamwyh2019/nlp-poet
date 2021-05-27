@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 data_path = 'data/qiyanjueju.txt'
 train_batch_size = 50
 eval_batch_size = 40
-epochs = 150
+epochs = 100
 input_size = 300
 hidden_size = 512
 n_layers = 6
