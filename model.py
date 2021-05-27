@@ -12,6 +12,8 @@ class PoetModel(nn.Module):
         self.n_layers = n_layers
         self.hidden_size = hidden_size
 
+        self.drop = nn.Dropout(dropout)
+
         self.lstm = nn.LSTM(
                 input_size = input_size,
                 hidden_size = hidden_size,
@@ -23,8 +25,6 @@ class PoetModel(nn.Module):
         self.layer_norm = nn.LayerNorm(hidden_size)
         
         self.decoder = nn.Linear(hidden_size, voc_size)
-
-        self.softmax = nn.Softmax(dim = 1)
         
         self.init_weights()
 
@@ -39,6 +39,8 @@ class PoetModel(nn.Module):
         # embedding: batch_sz * seq_len * voc_sz
         embedding = self.encoder(input)
 
+        embedding = self.drop(embedding)
+
         # output: batch_sz * seq_len * hidden_size        
         output, hidden = self.lstm(embedding, hidden)
 
@@ -46,8 +48,6 @@ class PoetModel(nn.Module):
 
         # decode: (batch_sz * seq_len) * voc_sz
         decode = self.decoder(output.reshape(batch_sz * seq_len, -1))
-
-        prob = self.softmax(decode)
 
         return decode, hidden
     

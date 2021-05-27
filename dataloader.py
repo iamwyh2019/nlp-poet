@@ -53,11 +53,11 @@ class poet_dataset():
     
     def shuffle(self):
         random.shuffle(self.ori_train_data)
-        random.shuffle(self.ori_val_data)
-        random.shuffle(self.ori_test_data)
+        #random.shuffle(self.ori_val_data)
+        #random.shuffle(self.ori_test_data)
         self.train_data = self.batchify(self.ori_train_data, self.train_batch_size)
-        self.val_data = self.batchify(self.ori_val_data, self.eval_batch_size)
-        self.test_data = self.batchify(self.ori_test_data, self.eval_batch_size)
+        #self.val_data = self.batchify(self.ori_val_data, self.eval_batch_size)
+        #self.test_data = self.batchify(self.ori_test_data, self.eval_batch_size)
     
     def head2vec(self, s:str):
         if s == '。' or s == '，':

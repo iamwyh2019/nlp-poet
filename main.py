@@ -33,7 +33,7 @@ model = model.to(device)
 
 criterion = nn.CrossEntropyLoss()
 lr = 1e-3
-optimizer = torch.optim.Adam(model.parameters(), lr = lr, weight_decay = 0.1)
+optimizer = torch.optim.Adam(model.parameters(), lr = lr)
 
 train_loss_history = np.zeros(epochs)
 val_loss_history = np.zeros(epochs)
