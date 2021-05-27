@@ -41,34 +41,17 @@ class poet_dataset():
         #print(self.train_data[0].shape)
 
     def tokenizer(self, s:str):
-        tok = s.strip().replace("，", "#").replace("。", "#").split("#")[:-1]
-        self.n_sents = len(tok)
-        self.n_words = len(tok[0])
-        full = []
-        for sent in tok:
-            lsent = list(sent)
-            full.extend(lsent)
-            full.append('#')
-        return full
+        self.n_sents = s.count("，") + s.count("。")
+        self.n_words = s.find("，")
+        tok = list(s)
+        tok.append('#')
+        return tok
     
     def shuffle(self):
         random.shuffle(self.ori_train_data)
         self.train_data = self.batchify(self.ori_train_data, self.train_batch_size)
     
-    def external_tokenizer(self, s:str):
-        tok = s.strip().replace("，", "#").replace("。", "#").split("#")[:-1]
-        full = []
-        for sent in tok:
-            lsent = list(sent)
-            full.extend(lsent)
-            full.append('#')
-        numeric = [self.vocab[word] for word in full]
-        ts = torch.tensor(numeric, dtype = torch.long).unsqueeze(0)
-        return ts
-    
     def head2vec(self, s:str):
-        if s == '。' or s == '，':
-            s = '#'
         numeric = self.vocab[s]
         ts = torch.tensor(numeric, dtype = torch.long).view(1,1)
         return ts
@@ -96,9 +79,14 @@ class poet_dataset():
         y = y.view(n_batch, batch_size, -1).contiguous()
         return x.to(device), y.to(device)
     
-    def get_batch(self, data, index):
+    def get_batch(self, data, index, batch_first = False, target_flatten = True):
         input = data[0][index]
-        target = data[1][index].reshape(-1)
+        target = data[1][index]
+        if not batch_first:
+            input = input.T
+            target = target.T
+        if target_flatten:
+            target = target.reshape(-1)
         return input, target
     
     def num2word(self, idx:int):
