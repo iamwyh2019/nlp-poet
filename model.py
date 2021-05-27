@@ -18,7 +18,8 @@ class PoetModel(nn.Module):
                 input_size = input_size,
                 hidden_size = hidden_size,
                 num_layers = n_layers,
-                batch_first = True
+                batch_first = True,
+                dropout = 0.5
             )
         
         self.layer_norm = nn.LayerNorm(hidden_size)

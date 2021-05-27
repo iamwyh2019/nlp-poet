@@ -33,7 +33,7 @@ class poet_dataset():
         self.eval_batch_size = eval_batch_size
 
         random.shuffle(all_sents)
-        train_sz, val_sz, test_sz = int(0.7*self.len), int(0.15*self.len), int(0.15*self.len)
+        train_sz, val_sz, test_sz = int(0.65*self.len), int(0.3*self.len), int(0.05*self.len)
         self.ori_train_data = self.data_process(all_sents[:train_sz])
         self.ori_val_data = self.data_process(all_sents[train_sz: train_sz + val_sz])
         self.ori_test_data = self.data_process(all_sents[train_sz + val_sz:])
