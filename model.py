@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class PoetModel(nn.Module):
-    def __init__(self, voc_size, input_size, hidden_size, n_layers, n_sents, n_words, tf_idf):
+    def __init__(self, voc_size, input_size, hidden_size, n_layers, n_sents, n_words):
         super(PoetModel, self).__init__()
         self.encoder = nn.Embedding(num_embeddings = voc_size, embedding_dim = input_size)
 
@@ -27,10 +27,6 @@ class PoetModel(nn.Module):
         
         self.init_weights()
 
-        self.tf_idf = tf_idf
-
-        print(self.tf_idf.shape)
-
     def forward(self, input, hidden = None):
         # input: batch_sz * seq_len
         batch_sz, seq_len  = input.size()
@@ -53,8 +49,6 @@ class PoetModel(nn.Module):
 
         # decode: (batch_sz * seq_len) * voc_sz
         decode = self.decoder(output.reshape(batch_sz * seq_len, -1))
-
-        decode = decode * self.tf_idf
 
         return decode, hidden
     

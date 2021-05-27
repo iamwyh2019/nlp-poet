@@ -15,10 +15,11 @@ hidden_size = 512
 n_layers = 6
 clip = 0.1
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 dataset = poet_dataset(data_path, train_batch_size, eval_batch_size)
 tokens, n_sents, n_words = dataset.info()
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+tf_idf = dataset.tf_idf.to(device)
 
 model = PoetModel(
     voc_size = tokens,
@@ -26,12 +27,11 @@ model = PoetModel(
     hidden_size = hidden_size,
     n_layers = n_layers,
     n_sents = n_sents,
-    n_words = n_words,
-    tf_idf = dataset.tf_idf.to(device)
+    n_words = n_words
 )
 model = model.to(device)
 
-criterion = nn.CrossEntropyLoss()
+criterion = nn.CrossEntropyLoss(weight = tf_idf).to(device)
 lr = 1e-3
 optimizer = torch.optim.Adam(model.parameters(), lr = lr)
 
@@ -51,7 +51,7 @@ def train(model):
     hidden = None
 
     for i in range(n_batch):
-        input, target = dataset.get_batch(dataset.train_data, i)
+        input, target = dataset.get_batch(dataset.train_data, i, batch_first = True, flat_target = True)
 
         optimizer.zero_grad()
 
@@ -89,7 +89,7 @@ def evaluate(model, data):
 
     with torch.no_grad():
         for i in range(n_batch):
-            input, target = dataset.get_batch(data, i)
+            input, target = dataset.get_batch(data, i, batch_first = True, flat_target = True)
             output, hidden = model(input, hidden)
 
             loss = criterion(output, target)
