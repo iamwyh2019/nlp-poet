@@ -1,6 +1,5 @@
 import torch
 from dataloader import poet_dataset
-from model import PoetModel
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -12,6 +11,11 @@ model_path = 'final_model.pt'
 model = torch.load(model_path, map_location = device)
 hidden = None
 n_sents, n_words = model.info()
+
+print('mode: {}言{}'.format(
+    "零一二三四五六七八九"[n_words],
+    "绝句" if n_sents == 4 else "律诗"
+))
 
 pre_word = "泉眼无声惜细流，树阴照水爱晴柔。小荷才露尖尖角，早有蜻蜓立上头。"
 
@@ -27,7 +31,7 @@ pre_process(pre_word)
 
 while True:
     model.eval()
-    heads = input('Input heads:')
+    heads = input('Input heads: ')
     if len(heads) != n_sents:
         print('Invalid input')
         continue
