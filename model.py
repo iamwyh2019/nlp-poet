@@ -33,10 +33,9 @@ class PoetModel(nn.Module):
         # input: batch_sz * seq_len
         batch_sz, seq_len  = input.size()
         if hidden is None:
-            ht = torch.zeros((self.n_layers, batch_sz, self.hidden_size)).to(input.device)
-            ct = torch.zeros((self.n_layers, batch_sz, self.hidden_size)).to(input.device)
-        else:
-            ht, ct = hidden
+            ht = torch.zeros((self.n_layers, batch_sz, self.hidden_size)).to(self.device)
+            ct = torch.zeros((self.n_layers, batch_sz, self.hidden_size)).to(self.device)
+            hidden = (ht, ct)
         
         # embedding: batch_sz * seq_len * voc_sz
         embedding = self.encoder(input)
@@ -44,7 +43,7 @@ class PoetModel(nn.Module):
         embedding = self.drop(embedding)
 
         # output: batch_sz * seq_len * hidden_size        
-        output, hidden = self.lstm(embedding, (ht,ct))
+        output, hidden = self.lstm(embedding, hidden)
 
         output = self.drop(output)
 
