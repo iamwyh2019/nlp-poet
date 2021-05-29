@@ -6,13 +6,13 @@ data_path = 'data/qiyanjueju.txt'
 dataset = poet_dataset(data_path)
 sep = dataset.head2vec('#').to(device)
 
-model_path = 'final_model.pt'
+model_path = 'new_final_model.pt'
 model = torch.load(model_path, map_location = device)
 print(model)
 hidden = None
 n_sents, n_words = model.info()
 
-pre_word = "碧玉妆成一树高，万条垂下绿丝绦。不知细叶谁裁出，二月春风似剪刀。"
+pre_word = "远上寒山石径斜，白云深处有人家。停车坐爱枫林晚，霜叶红于二月花。"
 
 def pre_process(pre_word):
     global hidden
@@ -21,12 +21,11 @@ def pre_process(pre_word):
         for word in pre_word:
             ipt = dataset.head2vec(word).to(device)
             opt, hidden = model(ipt, hidden)
-fts = True
+pre_process(pre_word)
+
 def entry(heads):
-    global fts
-    if fts:
-        pre_process(pre_word)
-        fts = False
+    if len(heads) != n_sents:
+        return "Invalid input"
     model.eval()
     poet = []
     cur_hidden = hidden
