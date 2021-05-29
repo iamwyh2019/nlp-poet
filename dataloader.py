@@ -13,6 +13,9 @@ class poet_dataset():
         df = Counter()
         all_sents = []
 
+        self.punc = ("，", "。", "？", "！", "：", "；")
+        self.sep = "#"
+
         self.n_poet = 0
 
         with open(data_path, 'r', encoding = 'utf-8-sig') as f:
@@ -51,14 +54,17 @@ class poet_dataset():
         self.tf_idf = torch.tensor(self.tf_idf)
 
     def tokenizer(self, s:str):
-        tok = s.strip().replace("，", "#").replace("。", "#").split("#")[:-1]
+        tok = s.strip()
+        for punc in self.punc:
+            tok = tok.replace(punc, self.sep)     
+        tok = tok.split(self.sep)[:-1]
         self.n_sents = len(tok)
         self.n_words = len(tok[0])
         full = []
         for sent in tok:
             lsent = list(sent)
             full.extend(lsent)
-            full.append('#')
+            full.append(self.sep)
         return full
     
     def shuffle(self):
@@ -70,8 +76,8 @@ class poet_dataset():
         #self.test_data = self.batchify(self.ori_test_data, self.eval_batch_size)
     
     def head2vec(self, s:str):
-        if s == '。' or s == '，':
-            s = '#'
+        if s in self.punc:
+            s = self.sep
         numeric = self.vocab[s]
         ts = torch.tensor(numeric, dtype = torch.long).view(1,1)
         return ts

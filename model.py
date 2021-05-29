@@ -2,12 +2,13 @@ import torch
 import torch.nn as nn
 
 class PoetModel(nn.Module):
-    def __init__(self, voc_size, input_size, hidden_size, n_layers, n_sents, n_words):
+    def __init__(self, voc_size, input_size, hidden_size, n_layers, n_sents, n_words, data_path):
         super(PoetModel, self).__init__()
         self.encoder = nn.Embedding(num_embeddings = voc_size, embedding_dim = input_size)
 
         self.n_sents = n_sents
         self.n_words = n_words
+        self.data_path = data_path
 
         self.n_layers = n_layers
         self.hidden_size = hidden_size

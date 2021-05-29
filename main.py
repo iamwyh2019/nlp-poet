@@ -27,7 +27,8 @@ model = PoetModel(
     hidden_size = hidden_size,
     n_layers = n_layers,
     n_sents = n_sents,
-    n_words = n_words
+    n_words = n_words,
+    data_path = data_path
 )
 model = model.to(device)
 
