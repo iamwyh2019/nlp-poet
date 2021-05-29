@@ -12,7 +12,7 @@ data_path = model.data_path
 dataset = poet_dataset(data_path)
 sep = dataset.head2vec('#').to(device)
 
-pre_word = "远上寒山石径斜，白云深处有人家。停车坐爱枫林晚，霜叶红于二月花。"
+pre_word = "清明时节雨纷纷，路上行人欲断魂。借问酒家何处有？牧童遥指杏花村。"
 
 def pre_process(pre_word):
     global hidden
