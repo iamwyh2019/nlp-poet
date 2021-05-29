@@ -23,7 +23,7 @@ def pre_process(pre_word):
             opt, hidden = model(ipt, hidden)
 pre_process(pre_word)
 
-def cur_mode() -> str:
+def get_mode() -> str:
     mode = n_sents * 10 + n_words
     mode_mp = {45: "五言绝句", 47: "七言绝句", 85: "五言律诗", 87: "七言律诗"}
     return mode_mp[mode]
