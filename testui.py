@@ -13,6 +13,7 @@ class MainWindow(QWidget, Ui_Form):
         super(QWidget, self).__init__(parent)
         self.setupUi(self)
         self.btn.clicked.connect(self.run)
+        self.modeLabel.setText(poet.get_mode())
 
     def run(self):
         heads = self.textInput.text()
