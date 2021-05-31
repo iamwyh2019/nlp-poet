@@ -2,7 +2,7 @@ import torch
 from dataloader import poet_dataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model_path = 'new_final_model.pt'
+model_path = 'wuyanjueju_final_model.pt'
 model = torch.load(model_path, map_location = device)
 print(model)
 hidden = None
@@ -12,8 +12,6 @@ data_path = model.data_path
 dataset = poet_dataset(data_path)
 sep = dataset.head2vec('#').to(device)
 
-pre_word = "清明时节雨纷纷，路上行人欲断魂。借问酒家何处有？牧童遥指杏花村。"
-
 def pre_process(pre_word):
     global hidden
     model.eval()
@@ -21,7 +19,7 @@ def pre_process(pre_word):
         for word in pre_word:
             ipt = dataset.head2vec(word).to(device)
             opt, hidden = model(ipt, hidden)
-pre_process(pre_word)
+pre_process(model.pre_word)
 
 def get_mode() -> str:
     mode = n_sents * 10 + n_words

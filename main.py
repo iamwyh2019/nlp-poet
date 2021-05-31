@@ -6,7 +6,7 @@ from model import PoetModel
 import time
 import matplotlib.pyplot as plt
 
-data_path = 'data/qiyanjueju.txt'
+data_path = 'data/qiyanlvshi.txt'
 train_batch_size = 50
 eval_batch_size = 40
 epochs = 100
@@ -28,7 +28,9 @@ model = PoetModel(
     n_layers = n_layers,
     n_sents = n_sents,
     n_words = n_words,
-    data_path = data_path
+    data_path = data_path,
+    pre_word = "莫笑农家腊酒浑，丰年留客足鸡豚。山重水复疑无路，柳暗花明又一村。'\
+    '萧鼓追随春社近，衣冠简朴古风存。从今若许闲乘月，拄杖无时夜叩门。"
 )
 model = model.to(device)
 
@@ -138,11 +140,11 @@ for epoch in range(epochs):
     if val_loss < best_val_loss:
         best_val_loss = val_loss
         best_model = model
-        torch.save(best_model, 'new_best_model.pt')
+        torch.save(best_model, 'qiyanlvshi_best_model.pt')
     
     dataset.shuffle()
 
-torch.save(model, 'new_final_model.pt')
+torch.save(model, 'qiyanlvshi_final_model.pt')
 
 plot_curve(train_loss_history, val_loss_history, 'LSTM_NEW', 'loss')
 plot_curve(train_ppl_history, val_ppl_history, 'LSTM_NEW', 'perplexity')
