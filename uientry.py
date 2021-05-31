@@ -2,7 +2,7 @@ import torch
 from dataloader import poet_dataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model_path = 'wuyanjueju_final_model.pt'
+model_path = 'wuyanlvshi_final_model.pt'
 model = torch.load(model_path, map_location = device)
 print(model)
 hidden = None
