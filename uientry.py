@@ -10,7 +10,7 @@ n_sents, n_words = model.info()
 
 data_path = model.data_path
 dataset = poet_dataset(data_path)
-sep = dataset.head2vec('#').to(device)
+sep = dataset.head2vec(dataset.sep).to(device)
 
 def pre_process(pre_word):
     global hidden
