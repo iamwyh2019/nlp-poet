@@ -8,3 +8,4 @@ LSTM_history.png
 *.pt
 *.npy
 .idea/*
+*.zip
