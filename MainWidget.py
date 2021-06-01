@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainWidget.ui'
+# Form implementation generated from reading ui file '.\MainWidget.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -28,9 +28,14 @@ class Ui_Form(object):
         self.modeHelperLabel = QtWidgets.QLabel(Form)
         self.modeHelperLabel.setObjectName("modeHelperLabel")
         self.horizontalLayout.addWidget(self.modeHelperLabel)
-        self.modeLabel = QtWidgets.QLabel(Form)
-        self.modeLabel.setObjectName("modeLabel")
-        self.horizontalLayout.addWidget(self.modeLabel)
+        self.modeSelect = QtWidgets.QComboBox(Form)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.modeSelect.sizePolicy().hasHeightForWidth())
+        self.modeSelect.setSizePolicy(sizePolicy)
+        self.modeSelect.setObjectName("modeSelect")
+        self.horizontalLayout.addWidget(self.modeSelect)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.textOutput = QtWidgets.QTextBrowser(Form)
         self.textOutput.setObjectName("textOutput")
@@ -44,4 +49,3 @@ class Ui_Form(object):
         Form.setWindowTitle(_translate("Form", "藏头诗生成器"))
         self.btn.setText(_translate("Form", "生成"))
         self.modeHelperLabel.setText(_translate("Form", "模式："))
-        self.modeLabel.setText(_translate("Form", "未知"))

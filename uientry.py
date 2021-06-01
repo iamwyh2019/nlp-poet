@@ -2,52 +2,59 @@ import torch
 from dataloader import poet_dataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model_path = 'wuyanlvshi_final_model.pt'
-model = torch.load(model_path, map_location = device)
-print(model)
-hidden = None
-n_sents, n_words = model.info()
+class Mode:
+    def __init__(self, name, path):
+        print(f'Loading model for 『{name}』...')
+        self.name = name
+        self.model = torch.load(path, map_location=device)
+        self.hidden = None
+        self.n_sents, self.n_words = self.model.info()
+        self.dataset = poet_dataset(self.model.data_path)
+        self.sep = self.dataset.head2vec(self.dataset.sep).to(device)
+        self.model.eval()
+        with torch.no_grad():
+            for word in self.model.pre_word:
+                ipt = self.dataset.head2vec(word).to(device)
+                _, self.hidden = self.model(ipt, self.hidden)
+    def entry(self, heads):
+        if len(heads) != self.n_sents:
+            return "Invalid input"
+        self.model.eval()
+        poet = []
+        cur_hidden = self.hidden
+        with torch.no_grad():
+            for i, head in enumerate(heads):
+                sent = []
+                ipt = self.dataset.head2vec(head).to(device)
+                sent.append(head)
 
-data_path = model.data_path
-dataset = poet_dataset(data_path)
-sep = dataset.head2vec(dataset.sep).to(device)
+                for _ in range(self.n_words - 1):
+                    opt, cur_hidden = self.model(ipt, cur_hidden)
+                    word_idx = torch.argmax(opt.squeeze()).item()
+                    word = self.dataset.num2word(word_idx)
+                    sent.append(word)
+                    ipt = self.dataset.head2vec(word).to(device)
 
-def pre_process(pre_word):
-    global hidden
-    model.eval()
-    with torch.no_grad():
-        for word in pre_word:
-            ipt = dataset.head2vec(word).to(device)
-            opt, hidden = model(ipt, hidden)
-pre_process(model.pre_word)
+                opt, cur_hidden = self.model(ipt, cur_hidden)
+                sent.append('，' if i % 2 == 0 else '。')
+                opt, cur_hidden = self.model(self.sep, cur_hidden)
 
-def get_mode() -> str:
-    mode = n_sents * 10 + n_words
-    mode_mp = {45: "五言绝句", 47: "七言绝句", 85: "五言律诗", 87: "七言律诗"}
-    return mode_mp[mode]
+                poet.append(''.join(sent))
+        return '\n'.join(poet)
 
-def entry(heads):
-    if len(heads) != n_sents:
-        return "Invalid input"
-    model.eval()
-    poet = []
-    cur_hidden = hidden
-    with torch.no_grad():
-        for i, head in enumerate(heads):
-            sent = []
-            ipt = dataset.head2vec(head).to(device)
-            sent.append(head)
 
-            for _ in range(n_words - 1):
-                opt, cur_hidden = model(ipt, cur_hidden)
-                word_idx = torch.argmax(opt.squeeze()).item()
-                word = dataset.num2word(word_idx)
-                sent.append(word)
-                ipt = dataset.head2vec(word).to(device)
-            
-            opt, cur_hidden = model(ipt, cur_hidden)
-            sent.append('，' if i % 2 == 0 else '。')
-            opt, cur_hidden = model(sep, cur_hidden)
+modes = [Mode('五言绝句', 'wuyanjueju_final_model.pt'),
+         Mode('七言绝句', 'qiyanjueju_final_model.pt'),
+         Mode('五言律诗', 'wuyanlvshi_final_model.pt'),
+         Mode('七言律诗', 'qiyanlvshi_final_model.pt')]
+curmode = 0
 
-            poet.append(''.join(sent))
-    return '\n'.join(poet)
+def getAllModes():
+    return modes
+
+def getCurMode():
+    return modes[curmode]
+
+def setCurModeIndex(index):
+    global curmode
+    curmode = index
