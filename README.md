@@ -4,8 +4,8 @@ Group project: 藏头诗生成
 
 ## TODO
 
-[ ] Use Transformer
-[ ] Replace CrossEntropy with perplexity
+- [ ] Use Transformer
+- [ ] Replace CrossEntropy with perplexity
 
 ## Update Log
 
