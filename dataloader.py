@@ -60,7 +60,7 @@ class poet_dataset():
         tok = tok.split(self.sep)[:-1]
         self.n_sents = len(tok)
         self.n_words = len(tok[0])
-        full = []
+        full = ['$']
         for sent in tok:
             lsent = list(sent)
             full.extend(lsent)
