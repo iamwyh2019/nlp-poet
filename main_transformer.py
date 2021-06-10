@@ -10,11 +10,11 @@ data_path = 'data/qiyanjueju.txt'
 train_batch_size = 50
 eval_batch_size = 40
 epochs = 100
-input_size = 300
-hidden_size = 512
+input_size = 1024
+hidden_size = 768
 n_layers = 12
 clip = 0.1
-n_heads = 5
+n_heads = 8
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -31,7 +31,7 @@ model = TransformerModel(
     n_sents = n_sents,
     n_words = n_words,
     data_path = data_path,
-    dropout = 0.5
+    dropout = 0.1
 )
 model = model.to(device)
 

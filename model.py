@@ -76,7 +76,7 @@ class PoetModel(nn.Module):
 class TransformerModel(nn.Module):
 
     def __init__(self, voc_size, input_size, n_heads, hidden_size, n_layers,
-                n_sents, n_words, data_path, dropout = 0.5):
+                 n_sents, n_words, data_path, dropout = 0.5):
 
         super(TransformerModel, self).__init__()
 
@@ -124,10 +124,10 @@ class TransformerModel(nn.Module):
 
 class PositionalEncoding(nn.Module):
 
-    def __init__(self, d_model, dropout = 0.1, max_len=5000):
+    def __init__(self, d_model, dropout = 0.1, max_len = 5000):
         super(PositionalEncoding, self).__init__()
 
-        self.dropout = nn.Dropout(p=dropout)
+        self.dropout = nn.Dropout(p = dropout)
 
         pe = torch.zeros(max_len, d_model)
 
