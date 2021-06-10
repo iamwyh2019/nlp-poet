@@ -118,6 +118,13 @@ class poet_dataset():
     def num2word(self, idx:int):
         return self.vocab.itos[idx]
     
+    def list2word(self, sent_num):
+        sent = []
+        for word_num in sent_num:
+            word = self.num2word(word_num)
+            sent.append(word)
+        return ''.join(sent)
+    
     def info(self):
         return self.ntoken, self.n_sents, self.n_words
     
