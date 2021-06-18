@@ -12,6 +12,7 @@ class Mode_LSTM:
         self.dataset = poet_dataset(self.model.data_path)
         self.sep = self.dataset.head2vec(self.dataset.sep).to(device)
         self.model.eval()
+        print(self.model.pre_word)
         with torch.no_grad():
             for word in self.model.pre_word:
                 ipt = self.dataset.head2vec(word).to(device)
@@ -83,13 +84,11 @@ class Mode_Transformer():
 
 Mode = Mode_LSTM
 
-'''
 modes = [Mode('五言绝句', 'wuyanjueju_final_model.pt'),
          Mode('七言绝句', 'qiyanjueju_final_model.pt'),
          Mode('五言律诗', 'wuyanlvshi_final_model.pt'),
          Mode('七言律诗', 'qiyanlvshi_final_model.pt')]
 curmode = 0
-'''
 
 def getAllModes():
     return modes
