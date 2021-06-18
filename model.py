@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import math
 
 class PoetModel(nn.Module):
     def __init__(self, voc_size, input_size, hidden_size, n_layers, n_sents, n_words,
@@ -71,3 +72,72 @@ class PoetModel(nn.Module):
     def info(self):
         return self.n_sents, self.n_words
 
+
+class TransformerModel(nn.Module):
+
+    def __init__(self, voc_size, input_size, n_heads, hidden_size, n_layers,
+                 n_sents, n_words, data_path, dropout = 0.5):
+
+        super(TransformerModel, self).__init__()
+
+        self.embedding = nn.Embedding(num_embeddings = voc_size, embedding_dim = input_size)
+
+        self.pos_encoder = PositionalEncoding(input_size, dropout)
+
+        encoder_layers = nn.TransformerEncoderLayer(input_size, n_heads, hidden_size, dropout)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layers, n_layers)
+        
+        self.input_size = input_size
+        self.decoder = nn.Linear(input_size, voc_size)
+
+        self.n_sents = n_sents
+        self.n_words = n_words
+        self.data_path = data_path
+
+        self.init_weights()
+
+
+    def generate_square_subsequent_mask(self, sz):
+        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+        return mask
+
+    def init_weights(self, initrange = 0.1):
+        self.embedding.weight.data.uniform_(-initrange, initrange)
+        self.decoder.bias.data.zero_()
+        self.decoder.weight.data.uniform_(-initrange, initrange)
+
+    def forward(self, input, input_mask):
+        # batch_first = False
+        seq_len, batch_sz = input.size()
+        src = self.embedding(input) * math.sqrt(self.input_size)
+        src = self.pos_encoder(src)
+        output = self.transformer_encoder(src, input_mask)
+        decoded = self.decoder(output.reshape(seq_len * batch_sz, -1))
+
+        return decoded
+    
+    def info(self):
+        return self.n_sents, self.n_words
+
+
+
+class PositionalEncoding(nn.Module):
+
+    def __init__(self, d_model, dropout = 0.1, max_len = 5000):
+        super(PositionalEncoding, self).__init__()
+
+        self.dropout = nn.Dropout(p = dropout)
+
+        pe = torch.zeros(max_len, d_model)
+
+        position = torch.arange(0, max_len, dtype = torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0).transpose(0, 1)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        x = x + self.pe[:x.size(0), :]
+        return self.dropout(x)

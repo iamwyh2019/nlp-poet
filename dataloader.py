@@ -60,7 +60,7 @@ class poet_dataset():
         tok = tok.split(self.sep)[:-1]
         self.n_sents = len(tok)
         self.n_words = len(tok[0])
-        full = []
+        full = ['$']
         for sent in tok:
             lsent = list(sent)
             full.extend(lsent)
@@ -117,6 +117,13 @@ class poet_dataset():
     
     def num2word(self, idx:int):
         return self.vocab.itos[idx]
+    
+    def list2word(self, sent_num):
+        sent = []
+        for word_num in sent_num:
+            word = self.num2word(word_num)
+            sent.append(word)
+        return ''.join(sent)
     
     def info(self):
         return self.ntoken, self.n_sents, self.n_words
