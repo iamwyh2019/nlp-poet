@@ -55,3 +55,64 @@
 
 
 
+## Basic Definition
+
+A Chinese poetry contains four or eight sentences, each with five or seven Chinese characters. **Jueju** means poems with four sentences, and **Lvshi** means eight; **Wuyan** means poems with five characters in each sentence, and **Qiyan** means seven. Depending on these two features, we split the poems into four kinds (of course there are exceptions). For example, a poem with four five-word sentences is **Wuyan Jueju**, and one with eight seven-word sentences is **Qiyan Lvshi**.
+
+A **head** is the concatenation of the first character in each sentence. For example, below is a Chinese poem:
+
+```
+春眠不觉晓，
+处处闻啼鸟。
+夜来风雨声，
+花落知多少。
+```
+
+and its head is `春处夜花`.
+
+## Project Structure
+
+This repository contains the following codes:
+
+- `dataloader.py`: defines a custom `dataloader` class. It reads in the poems dataset, assigns number to each Chinese character, splits train/test/validation datasets, and feeds random batches of data;
+- `model.py`: defines two models, the LSTM model and the Transformer model. The latter performs bad and is no longer used;
+- `main.py`: trains the LSTM model;
+- `main_transformer.py`: trains the Transformer model. No longer used;
+- `interactive.py`: interacts with the trained model via command line. It's no longer used as we have implemented a GUI;
+- `mainWidget.py`和`mainWidget.ui`: GUI files;
+- `testui.py`: start the GUI;
+- `uientry.py`: provides interface from the trained model to the GUI, including generating poems and switching between the four kinds of poetry.
+
+## Training and Testing
+
+Before training, we split the poems into four kinds as mentioned above (and discard poems that do not fall into these four categories). The four datasets are in the `data` folder, encoding `UTF-8 with BOM`.
+
+### Training
+
+We train the model in the following steps
+
+1. Read in the dataset with the custom `dataloader` class, convert all punctuations into #, add identifiers @ and * to the beginning and ending of each poem respectively, assign number to each characters, and compute the tf-idf value for each character;
+
+2. Split the dataset into train/validation/test datasets (at ratio 85%/15%/0%, we only test the model during training). Take Qiyan Jueju as an example, after adding identifiers, each poem is represented as a vector of length 33 (written as `a[0..32]`). The input of the model is  `a[0..31]` and output `a[1..32]`, so conceptually, given the first X characters, the model predicts the (X+1)th character;
+
+3. before each epoch, `hidden_state` is initialized as all-zero; in each epoch, the `dataloader` provides a batch of data (X,Y), the model reads in X and predicts Y'; we compute loss L(Y,Y') with catagorical cross-entropy, with the tf-idf value of each character as its weight; the gradient of L is then back-propagated through the model;
+
+   In each epoch, for all batches except the first one, we use the same `hidden_state` passed from the last batch; we use the Adam optimizer, and the gradient is clipped with factor 0.1 in case the gradient explodes;
+
+4. After each round of training, we do the same thing on validation set, but we only compute L without computing or propagating gradient;
+
+5. Shuffle the training set;
+
+6. Repeat 3-5 for `num_epoch` times (in our project it's 300), record the average training/validation loss in each epoch, plot the curve, and save the model with minimum validation loss. Also save the final model.
+
+### Testing
+
+During testing, we call the model from the GUI, and judge the quality of generated poems manually.
+
+We set a poem for each kind of poems. Prior to testing, the trained model reads in this poem and outputs the `hidden_state`. We then use this `hidden_state` to generate poems. This state encodes style information. In our project, we use "*Chuanxiao*" (by Meng Haoran) for **Wuyan Jueju**, "*Qingming*" (by Du Mu) for **Qiyan Jueju**, "*Seeing Vice-Magistrate Du Off to his Post in Sichuan*" (by Wang Bo) for **Wuyan Lvshi**, "*A Tour of the Village West of the Mountain*" (by Lu You).
+
+Take **Qiyan Jueju**. For a given head (with four characters), we send the first character of the head and the `hidden_state` mentioned above to the model to get the second character and the new `hidden_state`. The first and second character is then concatenated and sent into the model (with the new `hidden_state`) to get the third character, so on so forth. When we have the seventh (namely, we have the first sentence), append identifier # and the second character of the head to the sentence, then send it to the model to get the second sentence. Repeat this process till we get a complete poem.
+
+## Open-source
+
+**If you are taking the same course, please adhere to the academic integrity code**. In other cases, you are free to use any parts of this project. I am NOT responsbile for ANY incurred results.
