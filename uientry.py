@@ -101,7 +101,7 @@ def setCurModeIndex(index):
     curmode = index
 
 if __name__ == "__main__":
-    model = Mode_Transformer('七言绝句', 'tr_qiyanjueju_final.pt')
+    model = Mode('五言绝句', 'wuyanjueju_final_model.pt')
     while True:
         heads = input('Head: ')
         output = model.entry(heads)
